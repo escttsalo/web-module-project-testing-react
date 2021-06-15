@@ -1,14 +1,50 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import Display from '../Display';
 
+const testDisplay = {
+    name: "X Chronicals",
+    summary: "The chronicles of an individual named 'X'.",
+    seasons: [ {id: 0, name: 'Season 1', episodes:[]} ]
+    //add in approprate test data structure here.
+}
 
 test("renders without error", () => {
     render(<Display />)
 });
 
+test('test show component showing after button click', () => {
+    const displayFunction = jest.fn()
+    render(<Display displayFunction = {displayFunction}/>)
 
+    const button = screen.getByRole('button');
+    userEvent.click(button);
 
+    const show = screen.queryByTestId('show-container');
+    waitFor( () => expect(show).toBeInTheDocument());
+});
+
+test('test correct number of seasons after button click',() => {
+    render (<Display show = {testDisplay}/>);
+
+    const button = screen.getByRole('button');
+    userEvent.click(button);
+
+    waitFor( () => {
+        expect(screen.getAllByTestId('season-option')).toHaveLength(testDisplay.seasons.length)
+    });
+});
+
+test('test if optional function is being called', () => {
+    const mockClick = jest.fn();
+    render(<Display handleClick = {mockClick}/>);
+    
+    const button = screen.getByRole('button');
+    userEvent.click(button);
+
+    waitFor( () => expect(mockClick).toHaveBeenCalledTimes(1));
+})
 
 
 
